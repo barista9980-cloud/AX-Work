@@ -1,0 +1,26 @@
+# GitHub Ignore Rules for Security & Data Privacy
+
+# 1. Credentials & Secret Files (절대 깃허브에 올리면 안 되는 비밀키 파일)
+mcp.json
+
+# 2. Local Databases & Data Files
+*.db
+*.sqlite
+*.sqlite3
+real_estate_parsed_catalog.json
+summary_report.json
+real_estate_full_analysis.json
+
+# 3. Output files & User Documents
+output/
+downloads/
+gdrive_structure/
+
+# 4. Python Bytecode & Environments
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+
+local_api_key.txt

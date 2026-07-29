@@ -1,0 +1,40 @@
+=== PARAGRAPHS ===
+P0 [Normal]: text='[가산_대륭포스트타워6차] 402_403호 부동산 계약 관리 노트' | runs=["Run('[가산_대륭포스트타워6차] 402', size=15.0, bold=True, color=111827)", "Run('_403', size=15.0, bold=True, color=111827)", "Run('호 부동산 계약 관리 노트', size=15.0, bold=True, color=111827)"]
+P1 [Normal]: text='※ [AI 파싱 완료] 계약서 PDF에서 OCR 정밀 추출된 내용 입니다.
+※ 최초 작성 시 OCR 정밀 추출 결과물 확인 후 검토해 주시면 됩니다.' | runs=["Run('※ [AI 파싱 완료] 계약서 PDF에서 OCR 정밀 추출된 내용 입니다.', size=9.0, bold=None, color=4B5563)", "Run('\n※ 최초 작성 시 OCR 정밀 추출 결과물 확인 후 검토해 주시면 됩니다.', size=9.0, bold=None, color=4B5563)"]
+P2 [Normal]: text='1. 주 계약 정보' | runs=["Run('1. 주 계약 정보', size=None, bold=True, color=1F2937)"]
+P3 [Normal]: text='2. 수록 계약서 문서 목록 (총 2건)' | runs=["Run('2. 수록 계약서 문서 목록 (총 2건)', size=None, bold=True, color=1F2937)"]
+P4 [Normal]: text='' | runs=[]
+P5 [Normal]: text='' | runs=[]
+P6 [Normal]: text='3. 임대인 및 납부 계좌 정보' | runs=["Run('3. 임대인 및 납부 계좌 정보', size=None, bold=True, color=1F2937)"]
+P7 [Normal]: text='4. 계약 변동 이력 및 특이사항' | runs=["Run('4. 계약 변동 이력 및 특이사항', size=None, bold=True, color=1F2937)"]
+P8 [Normal]: text='' | runs=[]
+
+=== TABLES ===
+
+--- TABLE 0 (rows=5, cols=4) ---
+  R0: C0(bg=F2F4F7): '건물명 / 호수' | C1(bg=None): '가산_대륭포스트타워6차 402_403호' | C2(bg=F2F4F7): '사용처 (부서/용도)' | C3(bg=None): '가산사무실(콘텐츠본부,전략본부)'
+  R1: C0(bg=F2F4F7): '주 계약 유형' | C1(bg=None): '최초임대차' | C2(bg=F2F4F7): '최초 계약일' | C3(bg=None): '2024-02-29'
+  R2: C0(bg=F2F4F7): '임대 기간' | C1(bg=None): '2024-02-29~2026-02-28' | C2(bg=F2F4F7): '매월 납부일' | C3(bg=None): '10일'
+  R3: C0(bg=F2F4F7): '보증금' | C1(bg=None): '46,000,000' | C2(bg=F2F4F7): '월 임대료' | C3(bg=None): '4,600,000'
+  R4: C0(bg=F2F4F7): '계약면적 (㎡)' | C1(bg=None): '218.7㎡' | C2(bg=F2F4F7): '전용면적 / 평수' | C3(bg=None): '218.7㎡/66평'
+
+--- TABLE 1 (rows=6, cols=5) ---
+  R0: C0(bg=E6ECF5): '순서' | C1(bg=E6ECF5): '문서명' | C2(bg=E6ECF5): '계약 종류' | C3(bg=E6ECF5): '계약 당사자 (임대인 - 임차인)' | C4(bg=E6ECF5): '계약일'
+  R1: C0(bg=None): '01' | C1(bg=None): '가산_대륭포스트타워6차_402_403호_01_최초임대차_[㈜엠씨에스솔루션-㈜폭스에듀]_(240229)' | C2(bg=None): '최초임대차' | C3(bg=None): '㈜엠씨에스솔루션 → ㈜폭스에듀' | C4(bg=None): '2024-02-29'
+  R2: C0(bg=None): '02' | C1(bg=None): '가산_대륭포스트타워6차_403호_02_전대차_[㈜폭스에듀-정선혜]_(250701)' | C2(bg=None): '전대차' | C3(bg=None): '㈜폭스에듀 → 정선혜' | C4(bg=None): '2025-07-01'
+  R3: C0(bg=None): '' | C1(bg=None): '' | C2(bg=None): '' | C3(bg=None): '' | C4(bg=None): ''
+  R4: C0(bg=None): '' | C1(bg=None): '' | C2(bg=None): '' | C3(bg=None): '' | C4(bg=None): ''
+  R5: C0(bg=None): '' | C1(bg=None): '' | C2(bg=None): '' | C3(bg=None): '' | C4(bg=None): ''
+
+--- TABLE 2 (rows=4, cols=4) ---
+  R0: C0(bg=F2F4F7): '주 임대인' | C1(bg=None): '㈜엠씨에스솔루션' | C2(bg=F2F4F7): '주 임차인' | C3(bg=None): '㈜폭스에듀(폭스커넥트 법인)'
+  R1: C0(bg=F2F4F7): '임대인 연락처' | C1(bg=None): '02-3275-1190' | C2(bg=F2F4F7): '관리사무소 연락처' | C3(bg=None): ''
+  R2: C0(bg=F2F4F7): '입금 은행' | C1(bg=None): '하나은행' | C2(bg=F2F4F7): '예금주' | C3(bg=None): '㈜엠씨에스솔루션'
+  R3: C0(bg=F2F4F7): '계좌번호' | C1(bg=None): '1005-304-638857' | C2(bg=F2F4F7): '비고' | C3(bg=None): '특이사항 없음'
+
+--- TABLE 3 (rows=4, cols=2) ---
+  R0: C0(bg=F2F4F7): '계약 변동 / 전대차 / 승계 이력' | C1(bg=None): '2025-07-01[전대차] ㈜폭스에듀 → 정선혜'
+  R1: C0(bg=F2F4F7): '계약 연장 / 묵시적 갱신 이력' | C1(bg=None): ''
+  R2: C0(bg=F2F4F7): '중도해지 / 퇴거 예정 메모' | C1(bg=None): ''
+  R3: C0(bg=F2F4F7): '기타 특약 및 참조사항' | C1(bg=None): ''

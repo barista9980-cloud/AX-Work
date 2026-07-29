@@ -1,0 +1,545 @@
+import os
+import sys
+import re
+import docx
+from docx.shared import Pt, RGBColor, Inches, Cm
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+FOXCONNECT_ROOT = r"G:\내 드라이브\[FoxConnect]"
+REAL_ESTATE_BASE = os.path.join(FOXCONNECT_ROOT, r"[총무]업무\01_부동산_자산관리")
+
+print("Targeting Real Estate Directory Only:", REAL_ESTATE_BASE)
+
+def set_cell_background(cell, fill_hex):
+    tcPr = cell._tc.get_or_add_tcPr()
+    shd = tcPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}shd')
+    if shd is not None:
+        tcPr.remove(shd)
+    new_shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
+    tcPr.append(new_shd)
+
+def set_table_borders(table, color="334155", sz="4", val="single"):
+    tblPr = table._tbl.tblPr
+    borders = parse_xml(f'''
+        <w:tblBorders {nsdecls("w")}>
+            <w:top w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+            <w:left w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+            <w:bottom w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+            <w:right w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+            <w:insideH w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+            <w:insideV w:val="{val}" w:sz="{sz}" w:space="0" w:color="{color}"/>
+        </w:tblBorders>
+    ''')
+    existing = tblPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tblBorders')
+    if existing is not None:
+        tblPr.remove(existing)
+    tblPr.append(borders)
+
+def set_table_width_and_columns(table, col_widths_in_inches):
+    total_dxa = sum([int(w * 1440) for w in col_widths_in_inches])
+    tblPr = table._tbl.tblPr
+    tblW = parse_xml(f'<w:tblW {nsdecls("w")} w:w="{total_dxa}" w:type="dxa"/>')
+    existing_w = tblPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tblW')
+    if existing_w is not None:
+        tblPr.remove(existing_w)
+    tblPr.append(tblW)
+    
+    for row in table.rows:
+        for c_idx, cell in enumerate(row.cells):
+            cell_dxa = int(col_widths_in_inches[c_idx] * 1440)
+            cell.width = Inches(col_widths_in_inches[c_idx])
+            tcPr = cell._tc.get_or_add_tcPr()
+            tcW = parse_xml(f'<w:tcW {nsdecls("w")} w:w="{cell_dxa}" w:type="dxa"/>')
+            existing_cw = tcPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcW')
+            if existing_cw is not None:
+                tcPr.remove(existing_cw)
+            tcPr.append(tcW)
+
+def set_cell_margins(cell, top=60, bottom=60, left=100, right=100):
+    tcPr = cell._tc.get_or_add_tcPr()
+    tcMar = parse_xml(f'''
+        <w:tcMar {nsdecls("w")}>
+            <w:top w:w="{top}" w:type="dxa"/>
+            <w:bottom w:w="{bottom}" w:type="dxa"/>
+            <w:left w:w="{left}" w:type="dxa"/>
+            <w:right w:w="{right}" w:type="dxa"/>
+        </w:tcMar>
+    ''')
+    tcPr.append(tcMar)
+
+def set_row_cant_split(row):
+    trPr = row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
+def set_table_header_repeat(row):
+    trPr = row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+
+def strip_keep_next(p):
+    p.paragraph_format.keep_with_next = False
+    pPr = p._p.get_or_add_pPr()
+    kn = pPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}keepNext')
+    if kn is not None:
+        pPr.remove(kn)
+
+def format_header_cell(cell, text, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9"):
+    cell.text = text
+    set_cell_background(cell, bg_hex)
+    set_cell_margins(cell, top=60, bottom=60, left=100, right=100)
+    p = cell.paragraphs[0]
+    p.alignment = align
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(1)
+    strip_keep_next(p)
+    
+    if not p.runs:
+        p.add_run()
+    for r in p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(font_size)
+        r.bold = True
+        r.font.color.rgb = RGBColor(30, 41, 59)
+
+def format_data_cell(cell, text, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF"):
+    cell.text = text
+    set_cell_background(cell, bg_hex)
+    set_cell_margins(cell, top=60, bottom=60, left=100, right=100)
+    p = cell.paragraphs[0]
+    p.alignment = align
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(1)
+    strip_keep_next(p)
+    
+    if not p.runs:
+        p.add_run()
+    for r in p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(font_size)
+        r.bold = bold
+        r.font.color.rgb = RGBColor(15, 23, 42)
+
+def parse_option_a_filename(filename):
+    name_no_ext = os.path.splitext(filename)[0]
+    pattern = r"^(\d{2})_([^_]+)_(.*?)_\[(.*?)\]_\((\d{6})\)$"
+    m = re.match(pattern, name_no_ext)
+    if m:
+        seq, c_type, prop_info, parties, raw_date = m.groups()
+        party_list = parties.split('-') if '-' in parties else [parties]
+        p_a = party_list[0] if len(party_list) > 0 else ""
+        p_b = party_list[1] if len(party_list) > 1 else ""
+        y = "20" + raw_date[:2]
+        mon = raw_date[2:4]
+        d = raw_date[4:6]
+        f_date = f"{y}-{mon}-{d}"
+        
+        unit_match = re.search(r"(\d+호|\d+_\d+호|\d+층|지하\d+층.*)", prop_info)
+        u_str = unit_match.group(1) if unit_match else ""
+        display_title = f"{u_str} {c_type} 계약서".strip() if u_str else f"{c_type} 계약서"
+
+        return {
+            "filename_no_ext": name_no_ext,
+            "display_title": display_title,
+            "prop_info": prop_info,
+            "seq": seq,
+            "contract_type": c_type,
+            "party_a": p_a,
+            "party_b": p_b,
+            "contract_date": f_date
+        }
+    else:
+        return {
+            "filename_no_ext": name_no_ext,
+            "display_title": f"{name_no_ext} 계약서",
+            "prop_info": name_no_ext,
+            "seq": "01",
+            "contract_type": "최초임대차",
+            "party_a": "",
+            "party_b": "",
+            "contract_date": ""
+        }
+
+# STEP 1: Rename PDF files to Option A format in 01_부동산_자산관리
+print("\n=== STEP 1: RENAMING PDF CONTRACT FILES TO OPTION A FORMAT ===")
+
+renamed_count = 0
+
+for root, dirs, files in os.walk(REAL_ESTATE_BASE):
+    pdf_files = [f for f in files if f.lower().endswith(".pdf")]
+    if not pdf_files:
+        continue
+
+    # Sort pdf files logically: 최초임대차 first, then by date
+    def sort_key(f_name):
+        name_no_ext = os.path.splitext(f_name)[0]
+        is_first = 0 if "최초임대차" in name_no_ext or "매매" in name_no_ext else 1
+        date_match = re.search(r"\((\d{6})\)", name_no_ext)
+        d_val = date_match.group(1) if date_match else "999999"
+        return (is_first, d_val, f_name)
+
+    pdf_files.sort(key=sort_key)
+
+    for idx, f in enumerate(pdf_files, 1):
+        name_no_ext = os.path.splitext(f)[0]
+        seq_str = f"{idx:02d}"
+
+        old_path = os.path.join(root, f)
+
+        # Check if already Option A
+        if re.match(r"^\d{2}_", name_no_ext):
+            # Update sequence number if needed
+            pattern_a = r"^\d{2}_([^_]+)_(.*?)_\[(.*?)\]_\((\d{6})\)$"
+            ma = re.match(pattern_a, name_no_ext)
+            if ma:
+                c_type, prop_info, parties, raw_date = ma.groups()
+                new_f = f"{seq_str}_{c_type}_{prop_info}_[{parties}]_({raw_date}).pdf"
+            else:
+                new_f = f
+        else:
+            pattern = r"^(.*?)_(\d{2})_([^_]+)_\[(.*?)\]_\((\d{6})\)$"
+            m = re.match(pattern, name_no_ext)
+            if m:
+                prop_info, old_seq, c_type, parties, raw_date = m.groups()
+                new_f = f"{seq_str}_{c_type}_{prop_info}_[{parties}]_({raw_date}).pdf"
+            else:
+                date_match = re.search(r"\((\d{6})\)", name_no_ext)
+                raw_date = date_match.group(1) if date_match else "240101"
+                parties_match = re.search(r"\[(.*?)\]", name_no_ext)
+                parties = parties_match.group(1) if parties_match else ""
+                
+                c_type = "최초임대차"
+                if "전대차" in name_no_ext:
+                    c_type = "전대차"
+                elif "변경계약" in name_no_ext:
+                    c_type = "변경계약"
+                elif "연장" in name_no_ext:
+                    c_type = "연장계약"
+                elif "매매" in name_no_ext:
+                    c_type = "매매"
+                
+                folder_name = os.path.basename(root)
+                new_f = f"{seq_str}_{c_type}_{folder_name}_[{parties}]_({raw_date}).pdf"
+
+        new_path = os.path.join(root, new_f)
+        if old_path != new_path:
+            try:
+                os.rename(old_path, new_path)
+                print(f"  [RENAMED] {f} -> {new_f}")
+                renamed_count += 1
+            except Exception as e:
+                print(f"  [ERROR RENAMING] {f}: {e}")
+
+print(f"Total PDF Files Renamed: {renamed_count}")
+
+# STEP 2: Re-generate all docx Contract Notes with Master Template Layout
+print("\n=== STEP 2: RE-GENERATING ALL CONTRACT NOTES WITH MASTER TEMPLATE LAYOUT ===")
+
+t0_cols = [1.40, 2.025, 1.40, 2.025]
+t1_cols = [0.45, 2.95, 0.85, 1.75, 0.85]
+t2_cols = [1.40, 2.025, 1.40, 2.025]
+t3_cols = [2.00, 4.85]
+
+notes_count = 0
+
+for root, dirs, files in os.walk(REAL_ESTATE_BASE):
+    pdf_files = [f for f in files if f.lower().endswith(".pdf")]
+    if not pdf_files:
+        continue
+
+    # Delete existing old notes
+    existing_notes = [f for f in files if f.lower().endswith(".docx") and ("계약관리노트" in f or "계약_노트" in f or "노트" in f)]
+    for old_f in existing_notes:
+        old_p = os.path.join(root, old_f)
+        try:
+            os.remove(old_p)
+        except Exception:
+            pass
+
+    pdf_files.sort()
+    contract_items = [parse_option_a_filename(f) for f in pdf_files]
+    primary_item = contract_items[0]
+
+    folder_name = os.path.basename(root)
+    parent_name = os.path.basename(os.path.dirname(root))
+
+    b_name = parent_name
+    u_name = folder_name
+
+    doc = docx.Document()
+
+    for section in doc.sections:
+        section.top_margin = Cm(1.5)
+        section.bottom_margin = Cm(1.5)
+        section.left_margin = Cm(1.8)
+        section.right_margin = Cm(1.8)
+
+    style_normal = doc.styles['Normal']
+    style_normal.font.name = '맑은 고딕'
+    style_normal.font.size = Pt(10.0)
+
+    # P0 Title: 13pt Bold
+    p0 = doc.paragraphs[0] if doc.paragraphs else doc.add_paragraph()
+    p0.text = f"[{b_name}] {u_name} 부동산 계약 관리 노트"
+    strip_keep_next(p0)
+    p0.paragraph_format.space_before = Pt(0)
+    p0.paragraph_format.space_after = Pt(2)
+    for r in p0.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(13.0)
+        r.bold = True
+        r.font.color.rgb = RGBColor(15, 23, 42)
+
+    # P1 Sub-note: 9pt Gray
+    p1 = doc.add_paragraph()
+    p1.text = "※ [AI 파싱 완료] 계약서 PDF에서 OCR 정밀 추출된 내용 입니다.\n※ 최초 작성 시 OCR 정밀 추출 결과물 확인 후 검토해 주시면 됩니다."
+    strip_keep_next(p1)
+    p1.paragraph_format.space_after = Pt(6)
+    for r in p1.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(9.0)
+        r.font.color.rgb = RGBColor(100, 116, 139)
+
+    # Section 1 Heading: "1. 계약 정보"
+    sec1_p = doc.add_paragraph()
+    sec1_p.text = "1. 계약 정보"
+    strip_keep_next(sec1_p)
+    sec1_p.paragraph_format.space_before = Pt(6)
+    sec1_p.paragraph_format.space_after = Pt(2)
+    for r in sec1_p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(11.0)
+        r.bold = True
+        r.font.color.rgb = RGBColor(30, 41, 59)
+
+    # Table 0: 계약 정보
+    t0 = doc.add_table(rows=5, cols=4)
+    t0.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(t0, color="334155")
+    set_table_width_and_columns(t0, t0_cols)
+
+    t0_data = [
+        [("건물명 / 호수", True), (f"{b_name} {u_name}", False), ("사용처 (부서/용도)", True), (f"{u_name} 사무실", False)],
+        [("계약 유형", True), (primary_item["contract_type"], False), ("최초 계약일", True), (primary_item["contract_date"], False)],
+        [("임대 기간", True), (f"{primary_item['contract_date']} ~ [종료일자 확인 필요]", False), ("매월 납부일", True), ("", False)],
+        [("보증금", True), ("", False), ("월 임대료", True), ("", False)],
+        [("계약면적 (㎡)", True), ("", False), ("전용면적 / 평수", True), ("", False)]
+    ]
+
+    for r_i, r_row in enumerate(t0.rows):
+        set_row_cant_split(r_row)
+        row_vals = t0_data[r_i]
+        for c_i, (val, is_h) in enumerate(row_vals):
+            cell = r_row.cells[c_i]
+            if is_h:
+                format_header_cell(cell, val, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+            else:
+                format_data_cell(cell, val, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+
+    # Section 2 Heading: "2. 수록 계약서 문서 목록 (총 N건)"
+    sec2_p = doc.add_paragraph()
+    sec2_p.text = f"2. 수록 계약서 문서 목록 (총 {len(contract_items)}건)"
+    strip_keep_next(sec2_p)
+    sec2_p.paragraph_format.space_before = Pt(6)
+    sec2_p.paragraph_format.space_after = Pt(2)
+    for r in sec2_p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(11.0)
+        r.bold = True
+        r.font.color.rgb = RGBColor(30, 41, 59)
+
+    # Table 1: 수록 계약서 문서 목록
+    t1 = doc.add_table(rows=1, cols=5)
+    t1.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(t1, color="334155")
+    set_table_width_and_columns(t1, t1_cols)
+
+    set_row_cant_split(t1.rows[0])
+    set_table_header_repeat(t1.rows[0])
+
+    t1_headers = ["순서", "문서명 (파일명)", "계약 종류", "계약 당사자 (임대인 → 임차인)", "계약일"]
+    for c_i, h in enumerate(t1_headers):
+        cell = t1.rows[0].cells[c_i]
+        format_header_cell(cell, h, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="E2E8F0")
+
+    for idx, c_it in enumerate(contract_items, 1):
+        r_row = t1.add_row()
+        r_cells = r_row.cells
+        set_row_cant_split(r_row)
+
+        bg_color = "F8FAFC" if idx % 2 == 0 else "FFFFFF"
+        seq_str = f"{idx:02d}"
+        c_type = c_it["contract_type"]
+        parties_str = f"{c_it['party_a']} → {c_it['party_b']}" if c_it['party_a'] and c_it['party_b'] else c_it['party_a']
+        c_date = c_it["contract_date"]
+
+        format_data_cell(r_cells[0], seq_str, bold=True, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex=bg_color)
+
+        cell1 = r_cells[1]
+        set_cell_background(cell1, bg_color)
+        set_cell_margins(cell1, top=60, bottom=60, left=100, right=100)
+        cell1.text = ""
+        
+        p_title = cell1.paragraphs[0]
+        p_title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p_title.paragraph_format.space_before = Pt(1)
+        p_title.paragraph_format.space_after = Pt(0)
+        strip_keep_next(p_title)
+        r_main = p_title.add_run(c_it["display_title"])
+        r_main.font.name = "맑은 고딕"
+        r_main.font.size = Pt(10.0)
+        r_main.bold = True
+        r_main.font.color.rgb = RGBColor(15, 23, 42)
+
+        p_file = cell1.add_paragraph()
+        p_file.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p_file.paragraph_format.space_before = Pt(0)
+        p_file.paragraph_format.space_after = Pt(1)
+        strip_keep_next(p_file)
+        r_sub = p_file.add_run(f"({c_it['filename_no_ext']}.pdf)")
+        r_sub.font.name = "맑은 고딕"
+        r_sub.font.size = Pt(8.5)
+        r_sub.font.color.rgb = RGBColor(100, 116, 139)
+
+        format_data_cell(r_cells[2], c_type, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex=bg_color)
+        format_data_cell(r_cells[3], parties_str, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex=bg_color)
+        format_data_cell(r_cells[4], c_date, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex=bg_color)
+
+    set_table_width_and_columns(t1, t1_cols)
+
+    # MANDATORY CLEAN PAGE BREAK BEFORE SECTION 3
+    doc.add_page_break()
+
+    # Section 3 Heading: "3. 임대인 및 납부 계좌 정보"
+    sec3_p = doc.add_paragraph()
+    sec3_p.text = "3. 임대인 및 납부 계좌 정보"
+    strip_keep_next(sec3_p)
+    sec3_p.paragraph_format.space_before = Pt(6)
+    sec3_p.paragraph_format.space_after = Pt(2)
+    for r in sec3_p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(11.0)
+        r.bold = True
+        r.font.color.rgb = RGBColor(30, 41, 59)
+
+    # Table 2: Master Template Style (6 Rows)
+    t2 = doc.add_table(rows=6, cols=4)
+    t2.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(t2, color="334155")
+
+    lessee_str = f"{primary_item['party_b']}(폭스커넥트 법인)" if "폭스" in primary_item['party_b'] else primary_item['party_b']
+
+    # Row 0
+    format_header_cell(t2.rows[0].cells[0], "임대인", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[0].cells[1], primary_item["party_a"], bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+    format_header_cell(t2.rows[0].cells[2], "임차인", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[0].cells[3], lessee_str, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+
+    # Row 1
+    format_header_cell(t2.rows[1].cells[0], "임대인 연락처", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[1].cells[1], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+    format_header_cell(t2.rows[1].cells[2], "관리사무소 연락처", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[1].cells[3], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+
+    # Row 2
+    format_header_cell(t2.rows[2].cells[0], "입금 은행", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[2].cells[1], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+    format_header_cell(t2.rows[2].cells[2], "예금주", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[2].cells[3], primary_item["party_a"], bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+
+    # Row 3: Merge 0-1 (계좌번호) & Merge 2-3 (계좌번호 데이터)
+    t2.rows[3].cells[0].merge(t2.rows[3].cells[1])
+    t2.rows[3].cells[2].merge(t2.rows[3].cells[3])
+    format_header_cell(t2.rows[3].cells[0], "계좌번호", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t2.rows[3].cells[2], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="FFFFFF")
+
+    # Row 4: Merge ALL 4 cells for "비고" Header
+    t2.rows[4].cells[0].merge(t2.rows[4].cells[1]).merge(t2.rows[4].cells[2]).merge(t2.rows[4].cells[3])
+    format_header_cell(t2.rows[4].cells[0], "비고 (관리자 참고사항)", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+
+    # Row 5: Merge ALL 4 cells for "비고" Data
+    t2.rows[5].cells[0].merge(t2.rows[5].cells[1]).merge(t2.rows[5].cells[2]).merge(t2.rows[5].cells[3])
+    remarks_text = f"1. 본 건은 {u_name} 부동산 계약 건임.\n2. 최초 작성 시 원본 PDF 확인 후 관리자 검토를 진행해 주세요."
+    format_data_cell(t2.rows[5].cells[0], remarks_text, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.LEFT, bg_hex="FFFFFF")
+
+    set_table_width_and_columns(t2, t2_cols)
+    for r in t2.rows:
+        set_row_cant_split(r)
+
+    # Section 4 Heading: "4. 계약 변동 이력 및 특이사항"
+    sec4_p = doc.add_paragraph()
+    sec4_p.text = "4. 계약 변동 이력 및 특이사항"
+    strip_keep_next(sec4_p)
+    sec4_p.paragraph_format.space_before = Pt(6)
+    sec4_p.paragraph_format.space_after = Pt(2)
+    for r in sec4_p.runs:
+        r.font.name = "맑은 고딕"
+        r.font.size = Pt(11.0)
+        r.bold = True
+        r.font.color.rgb = RGBColor(30, 41, 59)
+
+    # Table 3: Master Template Style (5 Rows)
+    t3 = doc.add_table(rows=5, cols=2)
+    t3.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(t3, color="334155")
+
+    history_lines = []
+    for c_it in contract_items:
+        if c_it["contract_type"] in ["전대차", "연장계약", "변경계약", "승계계약", "법인승계"]:
+            p_str = f"{c_it['party_a']} → {c_it['party_b']}" if c_it['party_a'] else ""
+            history_lines.append(f"{c_it['contract_date']}[{c_it['contract_type']}] {p_str}")
+
+    h_text = "\n".join(history_lines) if history_lines else "특이 변동이력 없음 (최초 계약 유지 중)"
+
+    # Row 0
+    format_header_cell(t3.rows[0].cells[0], "계약 변동 / 전대차 / 승계 이력", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t3.rows[0].cells[1], h_text, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.LEFT, bg_hex="FFFFFF")
+
+    # Row 1
+    format_header_cell(t3.rows[1].cells[0], "계약 연장 / 묵시적 갱신 이력", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t3.rows[1].cells[1], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.LEFT, bg_hex="FFFFFF")
+
+    # Row 2
+    format_header_cell(t3.rows[2].cells[0], "중도해지 / 퇴거 예정 메모", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+    format_data_cell(t3.rows[2].cells[1], "", bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.LEFT, bg_hex="FFFFFF")
+
+    # Row 3: Merge both cells for Header
+    t3.rows[3].cells[0].merge(t3.rows[3].cells[1])
+    format_header_cell(t3.rows[3].cells[0], "기타 특약 및 참조사항", font_size=10.0, align=WD_ALIGN_PARAGRAPH.CENTER, bg_hex="F1F5F9")
+
+    # Row 4: Merge both cells for Data
+    t3.rows[4].cells[0].merge(t3.rows[4].cells[1])
+    special_terms_text = "1. 계약일 현재 등기부등본 확인 후 대상부동산의 권리 및 시설상태의 계약으로 한다.\n2. 임대차 만료 후 원상복구를 기본으로 한다.\n3. 부가세 및 관리비는 별도로 한다."
+    format_data_cell(t3.rows[4].cells[0], special_terms_text, bold=False, font_size=10.0, align=WD_ALIGN_PARAGRAPH.LEFT, bg_hex="FFFFFF")
+
+    set_table_width_and_columns(t3, t3_cols)
+    for r in t3.rows:
+        set_row_cant_split(r)
+
+    # Extra safety check: strip keep_with_next from EVERY paragraph
+    for p in doc.paragraphs:
+        strip_keep_next(p)
+
+    for t in doc.tables:
+        for r in t.rows:
+            for c in r.cells:
+                for cp in c.paragraphs:
+                    strip_keep_next(cp)
+
+    clean_u_name = re.sub(r'[\\/\:\*\?\"\<\>\|]', '_', u_name)
+    new_docx_filename = f"부동산_계약관리노트_{clean_u_name}.docx"
+    new_docx_path = os.path.join(root, new_docx_filename)
+
+    try:
+        doc.save(new_docx_path)
+        print(f"  [MASTER NOTE RE-GENERATED] {new_docx_filename}")
+        notes_count += 1
+    except Exception as e:
+        print(f"  [ERROR SAVING NOTE] {new_docx_filename}: {e}")
+
+print(f"\n==========================================")
+print(f"Finished Step 1 & 2! Renamed {renamed_count} PDF files and generated {notes_count} Master Contract Notes!")
+print(f"==========================================")
