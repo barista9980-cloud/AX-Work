@@ -1,26 +1,33 @@
-# GitHub Ignore Rules for Security & Data Privacy
-
-# 1. Credentials & Secret Files (절대 깃허브에 올리면 안 되는 비밀키 파일)
-mcp.json
-
-# 2. Local Databases & Data Files
-*.db
-*.sqlite
-*.sqlite3
-real_estate_parsed_catalog.json
-summary_report.json
-real_estate_full_analysis.json
-
-# 3. Output files & User Documents
-output/
-downloads/
-gdrive_structure/
-
-# 4. Python Bytecode & Environments
+# Environments & Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .env
-.venv/
-env/
+venv/
+ENV/
 
+# Data Deliverables & Corporate Content (NEVER UPLOAD TO GITHUB)
+*.csv
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.json
+*.txt
+!mcp.json.template
+
+# Specific Corporate File Patterns
+FoxConnect_*
+[외감_IPO대비]*
+부동산_*
+차량_*
+보험_*
+
+# System & Local Configs
 local_api_key.txt
+.DS_Store
+Thumbs.db
