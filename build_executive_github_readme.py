@@ -1,4 +1,12 @@
-# 🏢 Enterprise AX Asset Management & Vision AI System
+import os
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+REPO_DIR = r"C:\Users\User\OneDrive\바탕 화면\업무_AX"
+readme_p = os.path.join(REPO_DIR, "README.md")
+
+readme_content = r"""# 🏢 Enterprise AX Asset Management & Vision AI System
 > **(주식회사 폭스에듀 총무 자산관리 및 비전 AI 문서자동화 프레임워크)**  
 > **Repository Target**: `https://github.com/barista9980-cloud/AX-Work`  
 > **Compliance Standard**: 외부감사(External Audit) 및 IPO 상장 대비 표준 자산관리 대장 체계
@@ -116,3 +124,9 @@ G:\내 드라이브\[FoxConnect]\[총무]업무\
 ### 💻 Maintainer & Repository Info
 - **Maintainer**: (주식회사 폭스에듀 총무팀 / AX-Work)
 - **Repository**: [https://github.com/barista9980-cloud/AX-Work](https://github.com/barista9980-cloud/AX-Work)
+"""
+
+with open(readme_p, "w", encoding="utf-8") as f:
+    f.write(readme_content)
+
+print("Executive GitHub README.md updated successfully with raw string!")
