@@ -1,4 +1,12 @@
-# 🌐 범용 기업 자산관리 자동화 표준 프레임워크 (Universal Enterprise Asset Management Framework)
+import os
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+REPO_DIR = r"C:\Users\User\OneDrive\바탕 화면\업무_AX"
+framework_p = os.path.join(REPO_DIR, "Universal_Enterprise_Asset_Management_Framework.md")
+
+content = """# 🌐 범용 기업 자산관리 자동화 표준 프레임워크 (Universal Enterprise Asset Management Framework)
 
 본 가이드는 특정 기업명에 국한되지 않고 **모든 기업의 부동산(임대/전대/소유권), 법인차량(리스/렌트/승계), 기업보험(경영인/화재/자동차) 자산 체계**를 체계적으로 관리하고 **외부감사(External Audit) 및 IPO 상장 기준에 부합**하도록 구축된 **범용 표준 자산관리 가이드라인**입니다.
 
@@ -85,3 +93,9 @@
 ### 💻 Framework Maintenance
 - **Document Version**: 2.0 (Universal Enterprise Standard)
 - **Target Repository**: `https://github.com/barista9980-cloud/AX-Work`
+"""
+
+with open(framework_p, "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("Updated Universal_Enterprise_Asset_Management_Framework.md successfully!")
