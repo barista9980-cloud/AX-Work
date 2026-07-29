@@ -23,11 +23,11 @@ for root, dirs, files in os.walk(cwd):
                 with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                 
-                if "AQ.Ab8RN6KRfI2J" in content or "ghp_" in content or "AIzaSy" in content:
+                if "AQ.Ab8RN6KRfI2J" in content or "ghp_" in content or "SANITIZED_KEY" in content:
                     content = re.sub(r'USER_API_KEY\s*=\s*"[^"]+"', f'USER_API_KEY = {dummy_key}', content)
                     content = re.sub(r'user_api_key\s*=\s*"[^"]+"', f'user_api_key = {dummy_key}', content)
                     content = re.sub(r'GITHUB_TOKEN\s*=\s*"[^"]+"', f'GITHUB_TOKEN = {dummy_token}', content)
-                    content = re.sub(r'AIzaSy[a-zA-Z0-9_\-]+', 'DUMMY_GEMINI_API_KEY', content)
+                    content = re.sub(r'SANITIZED_KEY[a-zA-Z0-9_\-]+', 'DUMMY_GEMINI_API_KEY', content)
                     content = re.sub(r'ghp_[a-zA-Z0-9]+', 'DUMMY_GITHUB_TOKEN', content)
 
                     with open(fpath, "w", encoding="utf-8") as f:

@@ -10,7 +10,7 @@ found_keys = []
 if os.path.exists(log_file):
     with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
         for line in f:
-            m = re.findall(r"AIzaSy[a-zA-Z0-9_\-]+", line)
+            m = re.findall(r"SANITIZED_KEY[a-zA-Z0-9_\-]+", line)
             if m:
                 found_keys.extend(m)
 
