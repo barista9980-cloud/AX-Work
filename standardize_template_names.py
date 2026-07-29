@@ -8,8 +8,8 @@ GIT_EXE = r"C:\Users\User\AppData\Local\GitHubDesktop\app-3.6.3\resources\app\gi
 REPO_DIR = r"C:\Users\User\OneDrive\바탕 화면\업무_AX"
 templates_dir = os.path.join(REPO_DIR, "templates")
 
-old_name = "Real_Estate_Contract_Note_Template.md"
-new_name = "Corporate_Real_Estate_Contract_Note_Template.md"
+old_name = "Corporate_Real_Estate_Contract_Note_Template.md"
+new_name = "Corporate_Corporate_Real_Estate_Contract_Note_Template.md"
 
 old_p = os.path.join(templates_dir, old_name)
 new_p = os.path.join(templates_dir, new_name)
@@ -29,7 +29,7 @@ for item in os.listdir(templates_dir):
     print("  -", item)
 
 # Git commit and push
-commit_msg = "refactor: Standardize Real Estate template filename to Corporate_Real_Estate_Contract_Note_Template.md for 100% naming symmetry"
+commit_msg = "refactor: Standardize Real Estate template filename to Corporate_Corporate_Real_Estate_Contract_Note_Template.md for 100% naming symmetry"
 
 print("\n--- Running Git Add ---")
 subprocess.run([GIT_EXE, "add", "-A"], cwd=REPO_DIR)
