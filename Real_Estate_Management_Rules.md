@@ -54,7 +54,7 @@
 ---
 
 ## 🏛️ Section 9. 부동산 계약관리노트 바이너리 규격 및 타이포그래피 표준 (Word Note Binary Specs)
-> **Reference Document**: `templates/Master_Corporate_Contract_Note_Overhead_Template.md` & `01 판교 판교동 612`
+> **Reference Document**: `templates/Master_Corporate_Contract_Note_Overhead_Template.md`
 
 1. **페이지 여백 (Margins)**: 상하 42.5pt (15mm), 좌우 51.0pt (18mm) 좁은 여백 적용.
 2. **표 너비 및 중앙 정렬 (Width & Alignment)**: 1~4번 모든 표 너비 493.1pt (6.85in / 17.4cm) 100% 수직 칼정렬 중앙배치 (`<w:jc w:val="center"/>`).

@@ -1,7 +1,7 @@
 # 🏛️ Master Corporate Contract Note Overhead Specification
 > **범용 기업 계약관리노트 최상위 표준 마스터 명세서**  
 > **Applicable Domains**: 부동산 (Real Estate), 법인차량 (Vehicles), 기업보험 (Insurance)  
-> **Reference Benchmark Document**: `01 판교 판교동 612` 계약관리노트 (`부동산_계약관리노트_판교_판교동612.docx`)
+> **Standard Spec Type**: Generic Enterprise White-Label Standard Specification
 
 ---
 
@@ -22,9 +22,9 @@
 * **표 테두리 (Table Borders)**:
   - 선명한 실선 테두리 (`<w:tblBorders>` color `#334155`, sz `4`)
 * **클린 2페이지 모듈 분할 원칙 (Clean 2-Page Structure)**:
-  - 섹션 3(`3. 임대인 및 납부 계좌 정보`) 시작 전 **명시적 Page Break 적용**
+  - 섹션 3(`3. 담당자 및 납부 계좌 정보`) 시작 전 **명시적 Page Break 적용**
   - **Page 1**: 대제목 + AI 안내 배너 + `1. 계약 정보` (Table 1: 5행 4열) + `2. 수록 계약서 문서 목록 (총 N건)` (Table 2: N행 5열)
-  - **Page 2**: `3. 임대인 및 납부 계좌 정보` (Table 3: 6행 4열) + `4. 계약 변동 이력 및 특이사항` (Table 4: 5행 2열)
+  - **Page 2**: `3. 담당자 및 납부 계좌 정보` (Table 3: 6행 4열) + `4. 계약 변동 이력 및 특이사항` (Table 4: 5행 2열)
 
 ---
 
@@ -45,7 +45,7 @@
 * Col 4 (계약당사자): **126.0 pt** (1.75 in), 좌측 정렬, 10.0pt Regular `#0F172A`
 * Col 5 (임대시작일): **61.2 pt** (0.85 in), 중앙 정렬, 10.0pt Regular `#0F172A`
 
-#### **3. 임대인 및 납부 계좌 정보 (Table 3: 6행 4열 - 5,6행 4열 전면 병합)**
+#### **3. 담당자 및 납부 계좌 정보 (Table 3: 6행 4열 - 5,6행 4열 전면 병합)**
 * R1~R4: Col 1/3 (100.75pt `#F1F5F9` Bold), Col 2/4 (145.8pt 흰색 Regular)
 * R5 (통합 비고 헤더): **493.1 pt** (4개 열 전면 병합), `#F1F5F9` 배경, **10.0pt Bold** `#0F172A` ("비고 (관리자 참고사항)")
 * R6 (통합 비고 데이터): **493.1 pt** (4개 열 전면 병합), 흰색 배경, **10.0pt Regular** `#0F172A` (`1.`, `2.`, `3.` 번호 목록)
