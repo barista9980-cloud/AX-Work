@@ -1,14 +1,84 @@
 """
 Universal Configuration for Corporate Asset Management Framework
-Supports Environment Variables and CLI Overrides for Multi-Entity Deployment.
+Supports Environment Variables, config.json, and Interactive CLI Setup Wizard.
 """
 import os
 import sys
+import json
 
-# Dynamic Corporate Metadata (Overridden via CLI --company / --base-dir or ENV variables)
-DEFAULT_COMPANY_NAME = os.getenv("CORPORATE_NAME", "주식회사 폭스에듀")
-DEFAULT_BASE_DIR = os.getenv("CORPORATE_BASE_DIR", r"G:\내 드라이브\[FoxConnect]\[총무]업무")
-DEFAULT_SNAPSHOT_DATE = os.getenv("CORPORATE_SNAPSHOT_DATE", "2025년 12월 31일")
+CONFIG_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+
+def load_user_config():
+    """Load configuration from config.json or environment variables."""
+    config_data = {}
+    if os.path.exists(CONFIG_JSON_PATH):
+        try:
+            with open(CONFIG_JSON_PATH, "r", encoding="utf-8") as f:
+                config_data = json.load(f)
+        except Exception:
+            pass
+
+    company_name = config_data.get("company_name") or os.getenv("CORPORATE_NAME") or "주식회사 [사명 미설정]"
+    base_dir = config_data.get("base_dir") or os.getenv("CORPORATE_BASE_DIR") or r"C:\Enterprise_Assets"
+    snapshot_date = config_data.get("snapshot_date") or os.getenv("CORPORATE_SNAPSHOT_DATE") or "2025년 12월 31일"
+
+    return company_name, base_dir, snapshot_date
+
+def save_user_config(company_name: str, base_dir: str, snapshot_date: str = "2025년 12월 31일"):
+    """Save user interactive configuration into config.json."""
+    config_data = {
+        "company_name": company_name.strip(),
+        "base_dir": base_dir.strip(),
+        "snapshot_date": snapshot_date.strip()
+    }
+    with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(config_data, f, ensure_ascii=False, indent=2)
+    return CONFIG_JSON_PATH
+
+def run_interactive_setup():
+    """Interactive First-Time Setup Wizard for Company Name and Drive/PC Directory Path."""
+    current_company, current_base_dir, current_snapshot = load_user_config()
+
+    print("
+=================================================================")
+    print("🌐 AX-Work 마스터 프레임워크 초기 환경 설정 (First-Time Setup Wizard)")
+    print("=================================================================")
+    print("처음 셋팅을 시작합니다. 관리할 기업 사명과 구글드라이브/PC경로를 지정해주세요.
+")
+
+    # 1. Google Drive / PC Folder Path Prompt
+    print(f"[현재 설정 경로]: {current_base_dir}")
+    input_dir = input("1. 구글 드라이브 또는 PC 로컬 저장소 경로를 입력하세요 (엔터 시 현재값 유지): ").strip()
+    target_base_dir = input_dir if input_dir else current_base_dir
+
+    # 2. Company Name Prompt
+    print(f"
+[현재 설정 사명]: {current_company}")
+    input_company = input("2. 관리하실 기업의 사명(법인명)을 입력하세요 (예: (주)폭스커넥트) (엔터 시 현재값 유지): ").strip()
+    target_company = input_company if input_company else current_company
+
+    # 3. Snapshot Date Prompt
+    print(f"
+[현재 스냅샷 기준일]: {current_snapshot}")
+    input_snapshot = input("3. 보고서 스냅샷 기준일자를 입력하세요 (엔터 시 현재값 유지): ").strip()
+    target_snapshot_date = input_snapshot if input_snapshot else current_snapshot
+
+    saved_path = save_user_config(target_company, target_base_dir, target_snapshot_date)
+
+    print("
+-----------------------------------------------------------------")
+    print("✅ 설정이 성공적으로 저장되었습니다!")
+    print(f"   • 법인 사명 : {target_company}")
+    print(f"   • 저장 경로 : {target_base_dir}")
+    print(f"   • 기준 일자 : {target_snapshot_date}")
+    print(f"   • 설정 파일 : {saved_path}")
+    print("=================================================================
+")
+
+    return target_company, target_base_dir, target_snapshot_date
+
+# Initialize default runtime configurations
+DEFAULT_COMPANY_NAME, DEFAULT_BASE_DIR, DEFAULT_SNAPSHOT_DATE = load_user_config()
 
 FONT_FAMILY = "맑은 고딕"
 
