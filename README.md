@@ -106,7 +106,7 @@ graph TD
 sequenceDiagram
     autonumber
     participant Execution as 🏢 FoxConnect-AX (실무)
-    participant Agent as 🤖 AI Agent (비교분석)
+    participant Agent as  AI Agent (비교분석)
     participant Manager as 👨‍💼 관리자 (의사결정)
     participant Master as 🌐 AX-Work (마스터)
 
