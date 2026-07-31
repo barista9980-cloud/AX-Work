@@ -1,94 +1,62 @@
-# 🏢 AX-Work: Universal Corporate Asset Management & Vision AI Engine
-> **(기업 범용 AX 자산관리 및 비전 AI 문서자동화 프레임워크)**  
-> **Repository Target**: `https://github.com/barista9980-cloud/AX-Work`  
-> **Compliance Standard**: 외부감사(External Audit) 및 IPO 상장 대비 범용 자산관리 표준 엔진
+# 🌐 AX-Work | Universal Enterprise Asset Management Standard (Master Repo)
+
+**AX-Work**는 특정 법인(기업)에 종속되지 않고, 모든 기업의 자산(부동산, 법인차량, 보험 등)을 효율적으로 관리·파싱·보고서화하기 위한 **독립적인 범용 마스터 표준 저장소**입니다.
 
 ---
 
-## 📌 1. 시스템 개요 (Executive Summary)
-
-`AX-Work`는 특정 법인에 종속되지 않고 **어느 기업에서나 즉시 도입할 수 있는 범용(Universal) 총무 자산관리 및 문서 자동화 프레임워크 엔진**입니다.
-
-부동산(임대차/전대차/소유권), 법인차량(장기렌트/운용리스/승계), 기업보험(경영인정기보험/화재/자동차)의 자산 계약서를 **Vision AI 문서 인식 및 1:1 Flat 수평 구조**에 따라 표준화하고, **외부감사 및 IPO 상장 기준에 100% 부합하는 연도별 총괄자산대장(.xlsx)**을 일괄 생성합니다.
-
-```mermaid
-graph TD
-    A["📄 06_자동파싱_업로드큐<br/>(신규 스캔 PDF/이미지 인테이크)"] --> B["🤖 Vision AI / OCR Engine<br/>(계약서 및 약정서 정밀 파싱)"]
-    B --> C1["🏢 01_부동산_자산관리<br/>(1:1 Flat 독립 폴더)"]
-    B --> C2["🚗 02_차량_자산관리<br/>(1:1 Flat 독립 폴더)"]
-    B --> C3["🛡️ 03_보험_자산관리<br/>(1:1 Flat 독립 폴더)"]
-    C1 --> D1["📊 부동산 총괄자산대장.xlsx<br/>(임대/전대/매매 3개 탭 Engine)"]
-    C2 --> D2["📊 법인차량 총괄자산대장.xlsx<br/>(운행 8대/보증금/월세 Engine)"]
-    C3 --> D3["📊 기업보험 총괄자산대장.xlsx<br/>(경영인/화재/자동차 Engine)"]
-```
+## 🎯 마스터 저장소 설계 원칙
+1. **독립성 (Independence)**: 자산의 개수, 특정 기업명, 특정 법인의 개별 규칙에 종속되지 않으며 범용성을 보장합니다.
+2. **표준화 (Standardization)**: 파일명 명명 규칙, 2단계 마스터 폴더 계층 구조, AI OCR 파싱 필드 및 보고서 서식을 일관되게 제공합니다.
+3. **선순환 이관 체계 (Continuous Feedback Loop)**: 
+   * 실무 전용 저장소(예: FoxConnect-AX)에서 실무를 수행하며 검증된 최적의 프롬프트, 코드, 양식 아이디어를 수집합니다.
+   * 기존 마스터 표준과의 비교 분석 후 관리자 승인을 거쳐 본 AX-Work 저장소로 범용화 반영됩니다.
 
 ---
 
-## ⚡ 2. Quick Start & Execution Guide (실행 안내)
+## 📁 저장소 아키텍처
 
-단 한 줄의 명령어로 전체 자산관리 디렉토리 세팅 및 외감/IPO 마스터 엑셀 대장을 일괄 생성할 수 있습니다:
-
-```bash
-# 1. 전체 자산 파이프라인 일괄 실행 (디렉토리 세팅 + 부동산/차량/보험 엑셀 생성)
-python main.py --all
-
-# 2. 파라미터 지정을 통한 타 법인 적용 예시
-python main.py --company "주식회사 ABC" --base-dir "G:\내 드라이브\[ABC]\[총무]업무" --snapshot-date "2025년 12월 31일"
-
-# 3. 개별 자산 모듈만 실행
-python main.py --real-estate   # 부동산 대장만 생성
-python main.py --vehicle       # 법인차량 대장만 생성
-python main.py --insurance     # 기업보험 대장만 생성
-python main.py --setup-dirs    # 01~06 표준 디렉토리 및 업로드큐 초기 세팅
-```
-
----
-
-## 🧱 3. 모듈화된 소스 코드 아키텍처 (`src/`)
-
-일회성 파편화 스크립트를 제거하고 **모듈화된 엔진 아키텍처**로 단권화되었습니다:
-
-```text
+`	ext
 AX-Work/
-│
-├── 📄 main.py                      # 🚀 통합 CLI 엔트리 포인트
-├── 📄 README.md                    # 📖 범용 자산관리 레포지토리 설명서
-├── 📄 .gitignore                   # 🔒 임시 및 개인정보 파일 예외 설정
-│
-├── 📁 src/                         # 🛠️ 범용 자산관리 핵심 엔진 모듈
-│   ├── 📄 config.py                # ⚙️ 공통 서식, UI 컬러 토큰, 상태 배지 설정
-│   ├── 📄 folder_structure_engine.py # 📂 01~06 디렉토리 및 고유 업로드큐 세팅 엔진
-│   ├── 📄 real_estate_engine.py    # 🏢 부동산 3개 탭 마스터 엑셀 자동 생성 엔진
-│   ├── 📄 vehicle_engine.py        # 🚗 법인차량 마스터 엑셀 자동 생성 엔진
-│   └── 📄 insurance_engine.py      # 🛡️ 기업보험 마스터 엑셀 자동 생성 엔진
-│
-└── 📁 templates/                   # 📋 외감/IPO 표준 서식 및 마스터 템플릿
-    ├── 📄 External_Audit_IPO_Asset_Register_Template.md
-    └── 📄 Corporate_Insurance_Contract_Note_Template.md
-```
+├── README.md                                      <-- 마스터 저장소 개요 및 운용 원칙
+├── Universal_Enterprise_Asset_Management_Framework.md <-- 범용 기업 자산관리 마스터 프레임워크
+├── Real_Estate_Management_Rules.md               <-- 부동산 자산 세부 실무 및 보고서 규칙
+├── Antigravity_CLI_GoogleDrive_Setup_Guide.md     <-- Google Drive 연동 및 CLI 구축 가이드
+├── main.py                                         <-- 범용 마스터 실행 엔드포인트
+├── mcp.json.template                              <-- Google Drive MCP 설정 샘플
+├── .gitignore                                      <-- 개인정보 및 보안 파일 업로드 방지 규칙
+├── src/                                            <-- 자산 관리 핵심 파이썬 엔진
+│   ├── config.py                                   <-- 동적 환경 설정 모듈
+│   ├── db_manager.py                               <-- 범용 SQLite DB 엔진
+│   ├── folder_structure_engine.py                  <-- 폴더 계층 자동 생성 엔진
+│   ├── real_estate_engine.py                       <-- 부동산 파싱/관리 엔진
+│   ├── vehicle_engine.py                           <-- 법인 차량 파싱/관리 엔진
+│   ├── insurance_engine.py                         <-- 법인 보험 파싱/관리 엔진
+│   └── template_exporter.py                        <-- 보고서 양식 내보내기 엔진
+└── templates/                                      <-- 마스터 서식 템플릿 저장소
+    ├── Master_Corporate_Contract_Note_Overhead_Template.md
+    ├── Corporate_Real_Estate_Contract_Note_Template.md
+    ├── Corporate_Vehicle_Contract_Note_Template.md
+    ├── Corporate_Insurance_Contract_Note_Template.md
+    ├── External_Audit_IPO_Asset_Register_Template.md
+    └── README.md
+`
 
 ---
 
-## 📊 4. 외감 / IPO 대비 3대 마스터 엑셀 서식 수칙
+## 🔄 마스터 표준 이관 (Feedback Loop) 프로세스
 
-| 구분 | 외감 / IPO 제출용 서식 표준 규격 (Formatting Rules) |
-| :--- | :--- |
-| **A열 여백** | Column A 여백 전용 설정 (`width = 3`), 표 데이터는 **Column B부터 시작** |
-| **격자선 제거** | 배경 격자선 숨김 (`showGridLines = False`)으로 깔끔한 경영진 보고 UI 구현 |
-| **선명한 테두리** | 표 내부 **검은색 단선 (`#000000`)** 적용으로 출력 및 문서 가독성 보장 |
-| **단일 작성기준일** | `"현재"` 문구 전면 제거 ➔ **`작성 기준일: 2025년 12월 31일`** 잔액 Snapshot 표기 |
-| **지수 표기 차단** | 증권번호(`0946352...`), 차량번호, 차대번호 지수표기 예방 (`@` 텍스트 서식 지정) |
-| **상단 요약바** | Row 5에 **`작성 기준일: 2025-12-31 기준`** 유효 자산 총액 요약바 상시배치 |
-
----
-
-## 🔒 5. 보안 및 시크릿(Secret) 관리 수칙
-
-1. **API Key 보호**: 모든 Python 코드 및 문서에서 API Key 및 인증 토큰은 제거되었으며 환경 변수로 로드됩니다.
-2. **범용성 보장**: 법인명, 기본 경로, 작성기준일을 파라미터화하여 어느 법인에서나 즉시 사용 가능합니다.
+`	ext
+[ FoxConnect-AX 실무 수행 ]
+          │
+          ▼ (우수 양식/코드/프롬프트 발굴)
+[ AI 에이전트 비교 분석 ] ──> 기존 AX-Work 파일과 차이점 & 범용성 비교 보고서 작성
+          │
+          ▼ (관리자 검토 & 승인)
+[ AX-Work 마스터 반영 ] ──> 교체 또는 하단 추가를 통한 마스터 표준 고도화
+`
 
 ---
 
-### 💻 Maintainer Info
-- **Repository**: [https://github.com/barista9980-cloud/AX-Work](https://github.com/barista9980-cloud/AX-Work)
-- **License**: Corporate Enterprise Proprietary / Universal Framework
+## 🛡️ 보안 및 오픈소스 표준 준수
+- 실제 기업 계약서 데이터, .csv, .xlsx, .docx, .pdf, .db 등 개별 법인 데이터는 .gitignore에 의해 본 저장소에서 자동 제외됩니다.
+- 본 저장소의 모든 변경은 관리자 승인 절차를 거쳐 반영됩니다.

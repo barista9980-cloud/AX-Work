@@ -1,11 +1,14 @@
-# FoxConnect Real Estate Template Storage
-이 폴더(`templates/`)는 사용자가 정의한 보고서, 엑셀 대장, 양식 템플릿(.xlsx, .docx, .html 등)을 저장하는 공간입니다.
+# Universal Corporate Asset Template Storage
 
-## 📁 템플릿 구조
-- `real_estate_yearly_template.xlsx`: 연도별 현황 보고서 템플릿
-- `snapshot_report_template.xlsx`: 시점별(12월 31일 기준) 스냅샷 보고서 템플릿
-- `contract_summary_template.docx`: 계약 요약 서식 템플릿
+이 폴더(	emplates/)는 특정 법인에 종속되지 않은 **범용 마스터 기업 자산 양식 템플릿**(.md, .docx, .xlsx 등)을 보관하는 공간입니다.
 
-## 💡 사용법
-1. 원하는 서식 템플릿 파일을 이 폴더에 넣습니다.
-2. 엔진(`src/template_exporter.py`)이 템플릿을 자동으로 읽어서 데이터와 결합하여 `output/` 폴더에 최종 보고서를 생성합니다.
+## 📁 마스터 템플릿 목록
+- Master_Corporate_Contract_Note_Overhead_Template.md: 마스터 통합 임대차 계약 관리 노트 템플릿
+- Corporate_Real_Estate_Contract_Note_Template.md: 부동산 자산 개별 계약 노트 템플릿
+- Corporate_Vehicle_Contract_Note_Template.md: 법인 차량 자산 개별 노트 템플릿
+- Corporate_Insurance_Contract_Note_Template.md: 법인 보험 계약 개별 노트 템플릿
+- External_Audit_IPO_Asset_Register_Template.md: 외부감사 및 IPO 제출용 통합 자산 대장 템플릿
+
+## 💡 사용 및 이관 원칙
+1. 각 법인 저장소(예: FoxConnect-AX)에서는 본 마스터 템플릿을 상속받아 법인 특화 서식으로 운영합니다.
+2. 각 법인 실무에서 검증된 우수한 추가 필드나 양식이 발생할 경우, 관리자 검토를 통해 본 폴더의 마스터 템플릿에 반영됩니다.
