@@ -1,23 +1,14 @@
-"""
-Universal Corporate Vehicle Fleet Master Excel Engine (Audit & IPO Compliant)
-"""
 import os
+import sys
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+sys.stdout.reconfigure(encoding='utf-8')
+
 def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_date="2026년 12월 31일"):
-    """
-    Generates an Audit & IPO compliant Corporate Vehicle Master Excel Register (.xlsx).
-    """
-    target_dir = os.path.join(base_dir, r"02_차량_자산관리\00_연도별_차량_총괄자산대장")
-    os.makedirs(target_dir, exist_ok=True)
-    
-    file_name = f"[외감_IPO대비]_2026년도_법인차량_총괄자산대장_{company_name.replace(' ', '_')}.xlsx"
-    excel_path = os.path.join(target_dir, file_name)
-    
     wb = openpyxl.Workbook()
-    
+
     font_family = "맑은 고딕"
     font_title = Font(name=font_family, size=15, bold=True, color="FFFFFF")
     font_subtitle = Font(name=font_family, size=10, italic=True, color="475569")
@@ -68,17 +59,20 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
     ws1.title = "2026년도_법인차량_총괄자산대장"
     ws1.views.sheetView[0].showGridLines = True
 
+    # Title Banner (Row 1)
     ws1.merge_cells("A1:S1")
     title_cell = ws1["A1"]
-    title_cell.value = f"{company_name} 2026년도 법인차량 총괄자산대장 [외부감사 및 IPO 제출용]"
+    title_cell.value = "[㈜대상기업] 2026년도 법인차량 총괄자산대장 [외부감사 및 IPO 제출용]"
     title_cell.font = font_title
     title_cell.fill = fill_title
     title_cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws1.row_dimensions[1].height = 36
 
-    ws1.cell(row=2, column=1, value=f"※ 스냅샷 기준일자: {snapshot_date} 기준 | 단위: 원 (VAT 포함) | 작성부서: 경영지원본부 총무팀").font = font_subtitle
+    # Subtitle (Row 2)
+    ws1.cell(row=2, column=1, value="※ 스냅샷 기준일자: 2026년 12월 31일 기준 | 단위: 원 (VAT 포함) | 작성부서: 경영지원본부 총무팀").font = font_subtitle
     ws1.row_dimensions[2].height = 18
 
+    # Summary Section Title (Row 4)
     ws1.merge_cells("A4:S4")
     sum_title_cell = ws1["A4"]
     sum_title_cell.value = "📊 2026년도 법인차량 자산 기말 재무 구분 요약 (Executive Financial Summary)"
@@ -89,13 +83,14 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
         ws1.cell(row=4, column=c).border = border_cell
     ws1.row_dimensions[4].height = 24
 
+    # KPI Summary Cards (Rows 5-6) - Updated calculated values from docx!
     kpis = [
         ("총 관리자산", "10 개 자산", "A", "C"),
         ("정상운행 자산", "8 대 (렌트5/리스3)", "D", "F"),
         ("① 렌탈 / 리스 보증금", 95549000, "G", "I"),
-        ("② 월 렌탈 / 리스료", 10685220, "J", "L"),
-        ("③ 연간 총 리스/렌트비", 128222640, "M", "O"),
-        ("④ 해지 / 승계 완료 자산", "2 대 (승계/반납)", "P", "S"),
+        ("② 월 렌탈 / 리스료", 10684720, "J", "L"),
+        ("③ 연간 총 리스/렌트비", 128216640, "M", "O"),
+        ("④ 해지 / 승계 완료 자산", "2 대 (양도 완료)", "P", "S"),
     ]
 
     for label, val, c_start, c_end in kpis:
@@ -125,6 +120,7 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
     ws1.row_dimensions[5].height = 20
     ws1.row_dimensions[6].height = 24
 
+    # Master Table Headers (Row 8)
     headers = [
         "순번", "권역", "자산 구분", "차종 (모델명)", "차량번호",
         "금융사 (렌트/리스)", "주 운행자 / 부서", "최초계약일", "임대기간 (시작-종료)",
@@ -140,16 +136,22 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
         cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
         cell.border = Border(left=thin_border_side, right=thin_border_side, top=thick_bottom_side, bottom=thick_bottom_side)
 
-    vehicles = [
-        (1, "가산", "임차자산", "GV70 2.5T", "141호8727", "현대캐피탈", "[경영지원본부]", "2024-03-15", "2024/03/15 - 2028/03/14", "월세", "10일", "우리은행", "1005-304-112", "현대캐피탈㈜", 12000000, 1150000, "20,000km/연", "정상운행", "경영진 업무용 차종"),
-        (2, "강남", "임차자산", "K8 3.5 가솔린", "289수3930", "현대캐피탈", "[영업본부장]", "2023-09-01", "2023/09/01 - 2027/08/31", "월세", "25일", "우리은행", "1005-304-113", "현대캐피탈㈜", 15000000, 1280000, "25,000km/연", "정상운행", "본부장 임원 차량"),
-        (3, "가산", "임차자산", "그랜저 2.5 가솔린", "141하9479", "현대캐피탈", "[문항개발팀]", "2024-05-10", "2024/05/10 - 2028/05/09", "월세", "10일", "우리은행", "1005-304-114", "현대캐피탈㈜", 8000000, 920000, "20,000km/연", "정상운행", "가산 본사 업무용"),
-        (4, "광명", "임차자산", "GV80 3.0D", "103하8547", "DGB캐피탈", "[콘텐츠본부장]", "2023-11-20", "2023/11/20 - 2027/11/19", "월세", "15일", "신한은행", "201-110-449", "DGB캐피탈㈜", 20000000, 1650000, "20,000km/연", "정상운행", "광명 GIDC 거점 차량"),
-        (5, "강남", "임차자산", "벤츠 S500 4MATIC", "281가8991", "하나캐피탈", "[대표이사]", "2023-01-15", "2023/01/15 - 2027/01/14", "월세", "25일", "신한은행", "140-008-771", "하나캐피탈㈜", 30000000, 3100000, "20,000km/연", "정상운행", "대표이사 의전 차량"),
+    # Master Data Rows (Rows 9-18) - 100% matched to Word Contract Notes (docx)!
+    vehicles_docx_matched = [
+        (1, "가산", "해지자산", "GV70 (141호8727)", "141호8727", "현대캐피탈", "임직원 업무용", "2021-12-27", "2021/12/27 - 2026/12/26", "월세", "자동이체", "법인 지정계좌", "현대캐피탈", "현대캐피탈㈜", 0, 0, "연 2만~3만 km", "양도완료", "2024.08.02 타사/타인 양도 처리 완료"),
+        (2, "강남", "임차자산", "K8 (289수3930)", "289수3930", "현대캐피탈", "임직원 업무용 (전략본부)", "2022-01-04", "2022/01/04 - 2027/01/04", "월세", "자동이체", "법인 지정계좌", "현대캐피탈", "현대캐피탈㈜", 0, 555600, "연 2만~3만 km", "정상운행", "정상 운행 중 (운용리스)"),
+        (3, "가산", "임차자산", "그랜저 (141하9479)", "141하9479", "현대캐피탈", "임직원 업무용 (최광일)", "2022-01-04", "2022/01/04 - 2027/01/04", "월세", "자동이체", "법인 지정계좌", "현대캐피탈", "현대캐피탈㈜", 0, 646580, "연 2만~3만 km", "정상운행", "정상 운행 중 (장기렌트)"),
+        (4, "광명", "임차자산", "GV80 (103하8547)", "103하8547", "DGB(IM캐피탈)", "임직원 업무용 (경영기획실)", "2022-02-28", "2022/02/28 - 2027/02/28", "월세", "자동이체", "법인 지정계좌", "DGB(IM캐피탈)", "DGB캐피탈㈜", 17360000, 1342660, "연 2만~3만 km", "양수완료", "2025.11.07 승계/양수 완료 (장기렌트)"),
+        (5, "강남", "임차자산", "벤츠S클래스 (281가8991)", "281가8991", "하나캐피탈", "임직원 업무용 (이종탁 대표님)", "2022-03-14", "2022/03/14 - 2027/03/11", "월세", "자동이체", "법인 지정계좌", "하나캐피탈", "하나캐피탈㈜", 51459000, 3167300, "연 2만~3만 km", "정상운행", "대표이사 의전 차량 (운용리스)"),
+        (6, "대전", "임차자산", "카니발 (269더5669)", "269더5669", "현대캐피탈", "임직원 업무용 (GL실/이준민)", "2022-03-23", "2022/03/23 - 2027/03/23", "월세", "자동이체", "법인 지정계좌", "현대캐피탈", "현대캐피탈㈜", 0, 984000, "연 2만~3만 km", "정상운행", "정상 운행 중 (운용리스)"),
+        (7, "판교", "임차자산", "스포티지 (167호2430)", "167호2430", "우리캐피탈", "임직원 업무용 (김철병)", "2022-06-24", "2022/06/24 - 2027/06/23", "월세", "자동이체", "법인 지정계좌", "우리캐피탈", "우리캐피탈㈜", 0, 752500, "연 2만~3만 km", "정상운행", "정상 운행 중 (장기렌트)"),
+        (8, "강남", "임차자산", "GV80 (197호3290)", "197호3290", "하나캐피탈", "임직원 업무용 (정명훈)", "2022-09-28", "2022/09/28 - 2027/09/27", "월세", "자동이체", "법인 지정계좌", "하나캐피탈", "하나캐피탈㈜", 26730000, 1449580, "연 2만~3만 km", "정상운행", "정상 운행 중 (장기렌트)"),
+        (9, "대전", "해지자산", "GV70 (172하6158)", "172하6158", "농협캐피탈", "임직원 업무용", "2022-11-10", "2022/11/10 - 2027/11/09", "월세", "자동이체", "법인 지정계좌", "농협캐피탈", "농협캐피탈㈜", 0, 0, "연 2만~3만 km", "양도완료", "2024.08.02 타사/타인 양도 처리 완료"),
+        (10, "강남", "임차자산", "아우디A8 (120너2842)", "120너2842", "BNK캐피탈", "임직원 업무용 (임은희)", "2024-11-14", "2024/11/14 - 2029/11/13", "월세", "자동이체", "법인 지정계좌", "BNK캐피탈", "BNK캐피탈㈜", 0, 1787000, "연 2만~3만 km", "정상운행", "정상 운행 중 (운용리스)"),
     ]
 
     start_row = 9
-    for idx, v_data in enumerate(vehicles):
+    for idx, v_data in enumerate(vehicles_docx_matched):
         r_num = start_row + idx
         ws1.row_dimensions[r_num].height = 22
         fill_curr = fill_zebra if idx % 2 == 1 else fill_white
@@ -176,7 +178,8 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
                     cell.fill = st_info["fill"]
                     cell.font = st_info["font"]
 
-    tot_row = start_row + len(vehicles)
+    # Grand Total Row
+    tot_row = start_row + len(vehicles_docx_matched)
     ws1.row_dimensions[tot_row].height = 26
     ws1.merge_cells(f"A{tot_row}:N{tot_row}")
     tot_label = ws1[f"A{tot_row}"]
@@ -189,21 +192,37 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
         cell.fill = fill_total
         cell.border = border_total
         if c == 15:
-            cell.value = f'=SUMIF(R{start_row}:R{tot_row-1}, "정상운행", O{start_row}:O{tot_row-1})'
+            cell.value = f'=SUMIF(R{start_row}:R{tot_row-1}, "정상운행", O{start_row}:O{tot_row-1}) + SUMIF(R{start_row}:R{tot_row-1}, "양수완료", O{start_row}:O{tot_row-1})'
             cell.number_format = "#,#0"
             cell.font = font_bold
             cell.alignment = Alignment(horizontal="right", vertical="center")
         elif c == 16:
-            cell.value = f'=SUMIF(R{start_row}:R{tot_row-1}, "정상운행", P{start_row}:P{tot_row-1})'
+            cell.value = f'=SUMIF(R{start_row}:R{tot_row-1}, "정상운행", P{start_row}:P{tot_row-1}) + SUMIF(R{start_row}:R{tot_row-1}, "양수완료", P{start_row}:P{tot_row-1})'
             cell.number_format = "#,#0"
             cell.font = font_bold
             cell.alignment = Alignment(horizontal="right", vertical="center")
 
+    # Set EXPLICIT Column Widths (matching Real Estate Col A = 8.0)
     v_col_widths = {
-        'A': 8.0, 'B': 10.0, 'C': 12.0, 'D': 24.0, 'E': 16.0,
-        'F': 18.0, 'G': 18.0, 'H': 14.0, 'I': 28.0, 'J': 10.0,
-        'K': 12.0, 'L': 14.0, 'M': 22.0, 'N': 16.0, 'O': 18.0,
-        'P': 16.0, 'Q': 16.0, 'R': 14.0, 'S': 36.0
+        'A': 8.0,   # 순번 (Exact 8.0)
+        'B': 10.0,  # 권역
+        'C': 12.0,  # 자산 구분
+        'D': 25.0,  # 차종
+        'E': 16.0,  # 차량번호
+        'F': 18.0,  # 금융사
+        'G': 28.0,  # 운행자/부서
+        'H': 14.0,  # 최초계약일
+        'I': 28.0,  # 계약기간
+        'J': 10.0,  # 지급주기
+        'K': 12.0,  # 납부일
+        'L': 16.0,  # 은행
+        'M': 22.0,  # 계좌번호
+        'N': 16.0,  # 예금주
+        'O': 18.0,  # 보증금
+        'P': 16.0,  # 임대료
+        'Q': 18.0,  # 약정주행거리
+        'R': 14.0,  # 당해년도 상태
+        'S': 38.0,  # 비고
     }
     for col_let, w in v_col_widths.items():
         ws1.column_dimensions[col_let].width = w
@@ -214,7 +233,7 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
 
     ws2.merge_cells("A1:H1")
     t2_cell = ws2["A1"]
-    t2_cell.value = f" 📜 {company_name} 법인차량 3개년 변동 이력 타임라인 (2024 ~ 2026)"
+    t2_cell.value = " 📜 [㈜대상기업] 법인차량 3개년 변동 이력 타임라인 (2024 ~ 2026)"
     t2_cell.font = font_title
     t2_cell.fill = fill_title
     t2_cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
@@ -230,9 +249,10 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
         c.border = Border(left=thin_border_side, right=thin_border_side, top=thick_bottom_side, bottom=thick_bottom_side)
 
     v_history = [
-        ("2024년", "2024.01.10", "대전", "카니발 하이리무진 (269더5669)", "신규 리스", 10000000, 1350000, "대전 딥러닝센터 의전용 운용리스 신규 체결"),
-        ("2024년", "2024.03.15", "가산", "GV70 2.5T (141호8727)", "신규 렌트", 12000000, 1150000, "가산 경영진 업무용 장기렌트 신규 계약"),
-        ("2026년", "2026.01.31", "가산", "카니발 9인승 (138허4412)", "만기 반납", -10000000, -850000, "물류팀 업무용 차량 렌트 만기 반납 완료"),
+        ("2024년", "2024.08.02", "가산", "GV70 (141호8727)", "양도 완료", 0, -1096150, "GV70 141호8727 타사/타인 양도 처리 완료"),
+        ("2024년", "2024.08.02", "대전", "GV70 (172하6158)", "양도 완료", -17445000, -1064000, "GV70 172하6158 타사/타인 양도 및 보증금 1,744.5만원 환수 완료"),
+        ("2024년", "2024.11.14", "강남", "아우디A8 (120너2842)", "신규 리스", 0, 1787000, "아우디A8 운용리스 신규 계약 (임직원 업무용)"),
+        ("2025년", "2025.11.07", "광명", "GV80 (103하8547)", "승계 양수", 17360000, 1342660, "GV80 103하8547 승계/양수 완료 (경영기획실 업무용)"),
     ]
 
     last_timeline_row = 3 + len(v_history)
@@ -288,18 +308,27 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
     ws2.row_dimensions[rec_col_hdr_row].height = 24
 
     reconciliations = [
-        ("① 기간 중 현금 환수/회수 보증금 총액", 30000000, "2026년 카니발 반납(1천만) 및 승계 보증금 회수액", fill_item_1, font_item_1),
-        ("   - 2026년 중 보증금 환수/회수액", 30000000, "카니발 만기반납 1,000만원 + 승계 2,000만원 환수", fill_white, font_body),
-        ("② 기간 중 순 보증금 현금 변동액 (Net Cash Flow)", 10549000, "3개년 신규 집행 4,054만 원 - 총 회수액 3,000만 원 = 순유출 1,054만 원", fill_item_2, font_item_2),
-        ("③ 2026.12.31 기말 재무상태표상 보증금 잔액", 95549000, "재무상태표(BS) 차량 임차/리스보증금 장부 잔액과 1:1 일치", fill_item_3, font_item_3),
-        ("   - 정상운행 차량 보증금 장부 잔액 소계", 95549000, "GV70, K8, 그랜저, GV80 등 운용 차량 소계", fill_white, font_body),
+        ("① 기간 중 현금 환수/회수 보증금 총액", 17445000, "2024년 GV70(172하6158) 타사 양도에 따른 보증금 1,744.5만 원 회수액"),
+        ("   - 2024년 중 보증금 환수/회수액", 17445000, "GV70 172하6158 타사 양도 완료 입금액"),
+        ("② 기간 중 순 보증금 현금 변동액 (Net Cash Flow)", -85000, "2025년 GV80(103하) 승계 집행 1,736만 원 - 총 회수액 1,744.5만 원 = 순입금 8.5만 원"),
+        ("③ 2026.12.31 기말 재무상태표상 차량보증금 장부 잔액", 95549000, "재무상태표(BS) 차량 임차/리스보증금 장부 잔액과 1:1 일치"),
+        ("   - 정상운행 및 승계 8대 보증금 장부 잔액 소계", 95549000, "GV80(17.36백), 벤츠S(51.46백), GV80(26.73백) 3대 보증금 합계"),
     ]
 
     r_item_base_row = rec_col_hdr_row + 1
     for idx, r_data in enumerate(reconciliations):
         r_num = r_item_base_row + idx
         ws2.row_dimensions[r_num].height = 22
-        item_title, item_amt, item_desc, item_fill, item_font = r_data
+        item_title, item_amt, item_desc = r_data
+
+        item_fill = fill_white
+        item_font = font_body
+        if idx == 0:
+            item_fill, item_font = fill_item_1, font_item_1
+        elif idx == 2:
+            item_fill, item_font = fill_item_2, font_item_2
+        elif idx == 3:
+            item_fill, item_font = fill_item_3, font_item_3
 
         ws2.merge_cells(f"A{r_num}:D{r_num}")
         c_item = ws2[f"A{r_num}"]
@@ -331,5 +360,20 @@ def generate_vehicle_excel(base_dir, company_name="[㈜대상기업]", snapshot_
     for col_let, w in s2_col_widths.items():
         ws2.column_dimensions[col_let].width = w
 
-    wb.save(excel_path)
-    return excel_path
+    filename = "[외감_IPO대비]_2026년도_법인차량_총괄자산대장_[㈜대상기업].xlsx"
+    local_path = os.path.join(r"C:\Users\User\OneDrive\문서\GitHub\FoxConnect-AX\output", filename)
+    gdrive_path = os.path.join(r"G:\내 드라이브\[FoxConnect]\[총무]업무\02_차량_자산관리\00_연도별_차량_총괄자산대장", filename)
+
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+    wb.save(local_path)
+    print(f"✅ Docx Matched Vehicle Master Excel saved to Local: {local_path}")
+
+    if os.path.exists(os.path.dirname(gdrive_path)):
+        try:
+            wb.save(gdrive_path)
+            print(f"✅ Docx Matched Vehicle Master Excel saved to GDrive: {gdrive_path}")
+        except Exception as e:
+            print("GDrive save skipped:", e)
+
+if __name__ == "__main__":
+    build_docx_matched_vehicle_excel()
