@@ -20,6 +20,15 @@
 
 ---
 
+
+
+---
+
+## 🚀 Quick Start & 초기 환경 구축 가이드
+* **[📄 Antigravity CLI & Google Drive MCP 세팅 가이드 (Antigravity_CLI_GoogleDrive_Setup_Guide.md)](Antigravity_CLI_GoogleDrive_Setup_Guide.md)**
+  * Python, Node.js, Antigravity CLI 설치부터 Google Cloud OAuth 2.0 발급, mcp.json 구성 및 구글드라이브 연동까지의 **5단계 기초 환경 구축 문서**입니다.
+
+
 ## 📐 1. 시스템 레이어 & 아키텍처 (System Architecture)
 
 ```mermaid
