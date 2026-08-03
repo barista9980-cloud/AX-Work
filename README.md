@@ -97,11 +97,12 @@ graph TD
 ### 📑 Layer 3: 마스터 표준 서식 템플릿 (`templates/`)
 | 템플릿 파일명 | 용도 및 적용 대상 | 특징 |
 | :--- | :--- | :--- |
-| [`Master_Corporate_Contract_...md`](templates/Master_Corporate_Contract_Note_Overhead_Template.md) | **통합 계약 관리 노트** | 호수/건물별 전체 계약 이력(최초, 전대, 연장)을 통합 기록하는 워드 서식 |
+| [`Master_Corporate_Contract_...md`](templates/Master_Corporate_Contract_Note_Overhead_Template.md) | **통합 계약관리노트 최상위 규격** | 부동산, 법인차량, 기업보험 3대 자산 전체의 계약 이력을 통합 규정하는 워드(.docx) 최상위 마스터 서식 |
+| [`Master_Corporate_Asset_...md`](templates/Master_Corporate_Asset_Register_Template.md) | **기업 통합 총괄자산대장 (SSOT)** | 2단계 표 분리(유효자산 ↔ 해지이력) 및 동적 업데이트 일자가 반영된 엑셀(.xlsx) 마스터 자산 대장 양식 |
 | [`Corporate_Real_Estate_...md`](templates/Corporate_Real_Estate_Contract_Note_Template.md) | **부동산 자산 개별 서식** | 부동산 임대차 개별 계약 메타데이터 기재 양식 |
 | [`Corporate_Vehicle_Contract_...md`](templates/Corporate_Vehicle_Contract_Note_Template.md) | **법인 차량 개별 서식** | 차량별 계약, 보험, 유지보수 개별 기록 양식 |
 | [`Corporate_Insurance_...md`](templates/Corporate_Insurance_Contract_Note_Template.md) | **기업 보험 개별 서식** | 보험 종목별 보장 범위, 피보험자, 납입 정보 양식 |
-| [`External_Audit_IPO_...md`](templates/External_Audit_IPO_Asset_Register_Template.md) | **외부감사 / IPO 제출 대장** | Big4 회계법인 감사 및 상장(IPO) 제출용 엑셀 마스터 자산 대장 양식 |
+| [`External_Audit_IPO_...md`](templates/External_Audit_IPO_Asset_Register_Template.md) | **외부감사 / IPO 제출용 뷰** | 회계법인 외부감사 및 상장(IPO) 제출 시 재무 검증 항목 위주로 필터링하여 추출하는 엑셀 뷰 양식 |
 
 ---
 
