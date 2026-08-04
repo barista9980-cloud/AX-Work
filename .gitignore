@@ -31,3 +31,9 @@ FoxConnect_*
 local_api_key.txt
 .DS_Store
 Thumbs.db
+
+
+# Always track skills
+!skills/
+!skills/**
+!skills/*
